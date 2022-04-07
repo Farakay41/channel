@@ -6,12 +6,20 @@
 
 // This program writes the averaged cut-velocity signals
 
+
 using Matrix = std::vector < std::vector<double> >; // This is just an alias for 2D vector
 
+using Matrix_int = std::vector < std::vector<int> >;
+
+using Pair = std::pair<std::vector<double>, Matrix_int>;
+
+using Matrix2 = std::array<std::vector<double>, 2>; // This is just an alias for 2D vector
 //This is the main function for calculating the averaged velocity signals across the zero-crossings
-Matrix cut_velocity(std::vector <double> large, std::vector <double> small, std::vector <int> positions, int n)
+Pair cut_velocity(std::vector <double> large, std::vector <double> small, std::vector <int> positions, int n)
 
 {
+
+
 
 	//std::cout << n;  //number of velocity signals each right and left) of the zero crossing
 
@@ -23,70 +31,270 @@ Matrix cut_velocity(std::vector <double> large, std::vector <double> small, std:
 
 	std::vector<double> w;
 
-	for (int i = 0; i < size; ++i)
+	for (int i = 1; i < (size - 1); ++i)
 
 	{
 		int pos = positions.at(i);
 
-		w.push_back(large.at(pos) / (large.at(pos) - large.at(pos + 1)) );
-		std::cout << w.at(i) << std::endl;
+		w.push_back(large.at(pos) / (large.at(pos) - large.at(pos + 1)));
+		//std::cout << w.at(i-1) << std::endl;
 	}
 
-	Matrix cut_vel;
+	std::vector<int> diff_pre;
+	std::vector<int> diff_suc;
 
-	cut_vel.resize((std::vector<double>(size), ((2 * n) - 1)));
+	for (int i = 1; i < (size - 1); ++i)
+	{
+		diff_pre.push_back(positions.at(i) - positions.at(i - 1));
+
+		diff_suc.push_back(positions.at(i + 1) - positions.at(i));
+	}
+
+
+	std::vector<int> num_pre;
+	std::vector<int> num_suc;
+
+	for (int i = 0; i < (diff_pre.size()); ++i)
+	{
+
+		num_pre.push_back(floor(diff_pre.at(i) / 2));
+		num_suc.push_back(floor(diff_suc.at(i) / 2));
+
+	}
+
+
+	for (int i = 0; i < num_pre.size(); i++)
+	{
+		std::cout << num_pre.at(i) << std::endl;
+	}
+
+	for (int i = 0; i < num_suc.size(); i++)
+	{
+		std::cout << num_suc.at(i) << std::endl;
+	}
+
+	Matrix_int diff_count;
+
+	diff_count.resize((std::vector<double>(2), num_pre.size()));
+
+	for (int i = 0; i < (num_pre.size()); ++i)
+	{
+
+		diff_count[0].push_back(num_pre.at(i));
+
+	}
+
+	for (int i = 0; i < (num_suc.size()); ++i)
+	{
+
+		diff_count[1].push_back(num_suc.at(i));
+
+	}
+
+	std::vector<double> cut_vel;
+
+
 
 	// the matrix takes in the cut small scale velocity for each zero crossing position
-	for (int i = 0; i < size; i++) // for each of the zero-crossing positions
+	for (int i = 1; i < (size - 1); i++) // for each of the zero-crossing positions
 	{
 
 		int  temp = positions.at(i); // allocates a variable for each zero crossing positions
 
 
-		for (int j = 0; j < ((2 * n) - 1); j++) // n is the number of small scale velocity signals and time cut for each zero-crossing position
+		for (int j = 0; j < (num_pre.at(i - 1) + num_suc.at(i - 1)); j++) // n is the number of small scale velocity signals and time cut for each zero-crossing position
 
 		{
-			int loc = (temp - (n - 1) + j);
+			int loc = (temp - (num_pre.at(i - 1)) + j);
 
 
-			double vel = ((1 - w.at(i)) * small.at(loc)) + (w.at(i) * small.at(loc + 1));
+			double vel = ((1 - w.at(i - 1)) * small.at(loc)) + (w.at(i - 1) * small.at(loc + 1));
 
-			cut_vel[i].push_back(vel);
+
+			cut_vel.push_back(vel);
+
 
 		}
 
-	}
 
-	return cut_vel;
+
+	}
+	//std::cout << cut_vel.at(304066) << std::endl;
+	//std::cout << cut_vel[0][0]<< std::endl;
+	//std::cout << cut_vel[1][0] << std::endl;
+	//std::cout << cut_vel[2][0] << std::endl;
+
+	return { cut_vel, diff_count };
 }
 
-		
-std::vector <double> average_cut_velocity (Matrix velocity, std::vector <int> positions)
+
+std::vector <double> average_cut_velocity(Pair velocity, std::vector <int> positions)
 {
+
+	//std::cout << velocity.first.at(304067) << std::endl;
+
+	const int size = positions.size();
+
+	std::vector<int> length_vel;
+
+	for (int i = 1; i < (size - 1); i++)
+
+	{
+		length_vel.push_back(velocity.second[0].at(i - 1) + velocity.second[1].at(i - 1) + 2);
+
+
+	}
+
+	int max_2 = *std::max_element(length_vel.begin(), length_vel.end());
+
+	//had issues using te vector library, had to use a dynamic array
+	double* cut_velo = new double[1000000];
 
 	std::vector <double> averaged;
 	std::vector <double> vel_sum;
-	std::cout << velocity[0].size();
-	int size = positions.size();
+
+
+	std::vector<int> length;
+
+	/*I try to make the arrays same size by padding with zero where necessary.So i use the zero - crossing position with the highest preceding velocities when cut to calculate
+	how much zeros other zero crossing position needs befor the zero crossing*/
+
+	for (int i = 1; i < (size - 1); i++)
+
+	{
+		//std::cout << velocity.second[0].at(i - 1);
+		//(num_pre.at(i - 1) + num_suc.at(i - 1))
+		length.push_back(velocity.second[0].at(i - 1));
+		//std::cout << length.at(i-1);
+		//std::cout << length.at(i - 1) << std::endl;
+	}
+
+	int max = *std::max_element(length.begin(), length.end());
+
+	//std::cout << max;
+	//std::cout << velocity[0].size();
+
 	//std::cout << velocity.size();
 
-for (int i = 0; i < velocity[0].size(); i++)
-{
-	double vel = 0.0;
-	
-	  for (int j = 0; j < size; j++)
+
+
+	//difference
+
+
+	//cut_velo.resize((std::vector<double>(size - 2), 1000));
+	int total_size = 0;
+	for (int i = 1; i < (size - 1); i++)
+
 	{
 
-		 vel = vel + velocity[j].at(i);
-		 
+		//int fill = local_size - min;
+
+
+		for (int j = 0; j < (max - velocity.second[0].at(i - 1)) + 1; j++)
+		{
+
+
+			cut_velo[(max_2 * (i - 1)) + j] = 0.0;
+
+		}
+		//std::cout << cut_velo[i - 1].size() << std::endl;
+
+		int local_size = velocity.second[0].at(i - 1) + velocity.second[1].at(i - 1);
+		total_size += local_size;
+
+		for (int j = 0; j < (local_size); j++)
+		{
+
+			//cut_velo[i - 1].push_back(velocity[0][i - 1].at(j));
+
+			//cut_velo.at(((size - 2) * i) + (max - velocity.second[0].at(i - 1)) + j);
+			//double a =
+
+			cut_velo[(max_2 * (i - 1)) + (max - velocity.second[0].at(i - 1)) + 1 + j] = velocity.first.at(total_size - local_size + j);
+			// std::cout << cut_velo[(max_2 * (i - 1)) + (max - velocity.second[0].at(i - 1)) + 1 + j] << std::endl;
+		}
+
+
+		//std::cout << cut_velo[i - 1].size() << std::endl;
+
 
 	}
-	  averaged.push_back (vel / size);
-	// std::cout << averaged.size();
 
- }
 
-return averaged;
+
+	//Fill the other elements with to zero to have the same size as the largest "cut-velocity array"
+
+	for (int i = 1; i < (size - 1); i++)
+
+	{
+		int local_size = velocity.second[0].at(i - 1) + velocity.second[1].at(i - 1);
+
+		for (int j = 0; j < max_2 - length_vel.at(i - 1) + 1; j++)
+		{
+
+			//cut_velo[(((size - 2) * i) + (max - velocity.second[0].at(i - 1)) + local_size + j)] = (0.0);
+
+			cut_velo[(max_2 * (i - 1)) + (max - velocity.second[0].at(i - 1)) + 1 + local_size + j] = 0.0;
+
+		}
+
+		//std::cout << cut_velo[i-1].size();
+
+	}
+
+
+
+	std::vector <int> divisor;
+
+	for (int i = 1; i < max_2; i++)
+
+	{
+		int num = 0;
+
+		for (int j = 1; j < size - 1; j++)
+		{
+			double temp = cut_velo[((max_2 * (j - 1)) + i)];
+
+			if (temp == 0.0)
+			{
+				num += 0;
+			}
+
+			else
+			{
+				num += 1;
+			}
+
+		}
+
+		divisor.push_back(num);
+
+	}
+	std::cout << std::endl;
+	
+
+
+	for (int i = 1; i < max_2; i++)
+	{
+		double vel = 0.0;
+
+		for (int j = 1; j < size - 1; j++)
+		{
+
+			vel = vel + cut_velo[((max_2 * (j - 1)) + i)];
+
+
+		}
+
+
+		averaged.push_back(vel / (divisor.at(i - 1) * 1.0));
+	
+
+	}
+
+	delete []cut_velo;
+
+	return averaged;
 
 }
 
@@ -117,7 +325,7 @@ int main()
 	std::vector<int> array_neg(N / sizeof(int));
 	infile_a.read(reinterpret_cast<char*>(array_neg.data()), static_cast<std::streamsize>(array_neg.size()) * sizeof(int));
 
-	
+
 	//Read in the the small-scale velocity signals
 
 	std::ifstream infile_s("us_file.out", std::ifstream::binary);
@@ -139,10 +347,9 @@ int main()
 
 	std::vector<double> ul(V / sizeof(double));
 	infile_l.read(reinterpret_cast<char*>(ul.data()), static_cast<std::streamsize>(ul.size()) * sizeof(double));
-	
 
-	Matrix cut_us_P; // cut small velocity and time for positive to negative
-	Matrix cut_us_N; // cut small velocity and time for negative to positive
+	Pair cut_us_P; // cut small velocity and time for positive to negative
+	Pair cut_us_N; // cut small velocity and time for negative to positive
 
 	int num_of_cuts; // number of velocity signals in the right(or left) of the zero crossing
 
@@ -158,6 +365,9 @@ int main()
 	//call the cut_velocity function to calculate the averaged velocity signals (negative to positive)
 	cut_us_N = cut_velocity(ul, us, array_neg, num_of_cuts);
 
+	//std::cout << cut_us_N[0][0][0];
+
+	//std::cout << cut_us_P[0].size();
 
 	std::vector<double> cut_us_Pos;
 
@@ -166,10 +376,10 @@ int main()
 	cut_us_Pos = average_cut_velocity(cut_us_P, array_pos);
 	cut_us_Neg = average_cut_velocity(cut_us_N, array_neg);
 
-
 	//write the result to a textfile
 	std::ofstream fileOut_P;
 	fileOut_P.open("Velocity_pos_neg.txt");
+
 
 	for (int i = 0; i < cut_us_Pos.size(); i++)
 	{
@@ -187,46 +397,9 @@ int main()
 	}
 	fileOut_N.close();
 
-	//Write the unaveraged velocities into two matrices
-
-	std::vector<double> arr_pos;
-
-	for (int y = 0; y < array_pos.size() ; ++y) {
-		for (int x = 0; x < ((2 *num_of_cuts) -1); ++x) {
-			arr_pos.push_back(cut_us_P[y][x]);
-		}
-	}
-	
-	//std::cout << arr[123];
-	//std::cout << cut_us_P[2][3];
-
-	std::fstream file;
-	file.open("data_pos.out", std::ios::out | std::ios::binary);
-	for (int i = 0; i < arr_pos.size(); i++)
-	{
-		file.write((char*)(&arr_pos[i]), sizeof(double));
-	}
-
-
-	std::vector<double> arr_neg;
-
-	for (int y = 0; y < array_neg.size(); ++y) {
-		for (int x = 0; x < ((2 * num_of_cuts) - 1); ++x) {
-			arr_neg.push_back(cut_us_P[y][x]);
-		}
-	}
-
-	//std::cout << arr[123];
-	//std::cout << cut_us_P[2][3];
-
-	std::fstream file_;
-	file_.open("data_neg.out", std::ios::out | std::ios::binary);
-	for (int i = 0; i < arr_neg.size(); i++)
-	{
-		file_.write((char*)(&arr_neg[i]), sizeof(double));
-	}
-
-
-	return 0;
 
 }
+
+/*
+
+*/
