@@ -44,8 +44,7 @@ libs = -lfftw3
 # Target-specific assignments
 postpro/tke/uiuj_largesmall: flags += -DforceblockingY
 postpro/tke/uiuj_spectra: flags += -DforceblockingY
-postpro/conditional/Velocity_cut: flags += -DforceblockingY
-postpro/conditional/zero_crossings: flags += -DforceblockingY
+
 
 channel: $(OBJ) channel.o
 	$(F90) $(flags) -o  $@ $(OBJ) channel.o $(libs)
@@ -62,11 +61,14 @@ postpro/tke/uiuj_largesmall: $(OBJ) postpro/tke/uiuj_largesmall.o
 postpro/tke/uiuj_spectra: $(OBJ) postpro/tke/uiuj_spectra.o
 	$(F90) $(flags) -o $@ $(OBJ) postpro/tke/uiuj_spectra.o $(libs)
 	make clean
-postpro/conditional/Velocity_cut: $(OBJ) postpro/conditional/Velocity_cut.o
-	$(CC) $(flags) -o $@ $(OBJ) postpro/conditional/Velocity_cut.o $(libs)
+postpro/conditional/cut_velocity: $(OBJ) postpro/conditional/cut_velocity.o
+	$(CC) $(flags) -o $@ $(OBJ) postpro/conditional/cut_velocity.o $(libs)
 	make clean
 postpro/conditional/zero_crossings: $(OBJ) postpro/conditional/zero_crossings.o
 	$(CC) $(flags) -o $@ $(OBJ) postpro/conditional/zero_crossings.o $(libs)
+	make clean
+postpro/conditional/cut_1st_and_2nd_method: $(OBJ) postpro/conditional/cut_1st_and_2nd_method.o
+	$(CC) $(flags) -o $@ $(OBJ) postpro/conditional/cut_1st_and_2nd_method.o $(libs)
 	make clean
 postpro/am/camstar: $(OBJ) postpro/am/camstar.o
 	$(F90) $(flags) -o $@ $(OBJ) postpro/am/camstar.o $(libs)
