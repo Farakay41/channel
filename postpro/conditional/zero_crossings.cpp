@@ -13,7 +13,7 @@ int main()
 {
 
 	//This reads in the large scale velocity signals from a binary file and write it into an array
-	std::ifstream infile_a("ul_file.out", std::ifstream::binary);
+	std::ifstream infile_a("ul.out", std::ifstream::binary);
 
 	infile_a.seekg(0, infile_a.end);
 	int P = infile_a.tellg();
@@ -22,16 +22,30 @@ int main()
 	std::vector<double> ul(P / sizeof(double));
 	infile_a.read(reinterpret_cast<char*>(ul.data()), static_cast<std::streamsize>(ul.size()) * sizeof(double));
 
+	
 
 	//This reads in the time signals from a binary file and write it into an array
 	std::ifstream infile_t("time_file.out", std::ifstream::binary);
 
+	/*
 	infile_t.seekg(0, infile_a.end);
 	int T = infile_t.tellg();
 	infile_t.seekg(0, infile_t.beg);
 
 	std::vector<double> t(T / sizeof(double));
 	infile_t.read(reinterpret_cast<char*>(t.data()), static_cast<std::streamsize>(t.size()) * sizeof(double));
+	*/
+
+	std::vector<double> t;
+	double dt;
+	std::ifstream infilt_txt("time_step.txt");
+	infilt_txt >> dt;
+	for (int i = 0; i < ul.size(); i++)
+	{
+
+		t.push_back(dt * i);
+	}
+	
 
 
 	int i = 1; // to avoid the first "zero-crossing at time = 0"
@@ -99,23 +113,23 @@ int main()
 		array_pos.clear();
 		array_neg.clear();
 
-		for (int i = 1; i < (array_pos_.size()-1); i++)
+		for (int i = 1; i < (array_pos_.size() - 1); i++)
 		{
 
 			double precedent_gap = t[array_pos_.at(i)] - t[array_pos_.at(i - 1)];
 			double successive_gap = (t[array_pos_.at(i + 1)] - t[array_pos_.at(i)]);
 
-			if ( ( precedent_gap > (threshold *1.0)) &&  ( successive_gap > (threshold * 1.0)) )
-			
+			if ((precedent_gap > (threshold * 1.0)) && (successive_gap > (threshold * 1.0)))
+
 			{
 				array_pos.push_back(array_pos_.at(i));
 
-			 }
+			}
 
 
 		}
 
-		for (int j = 1; j < (array_neg_.size() -1); j++)
+		for (int j = 1; j < (array_neg_.size() - 1); j++)
 		{
 			double precedent_gap = t[array_neg_.at(j)] - t[array_neg_.at(j - 1)];
 			double successive_gap = (t[array_neg_.at(j + 1)] - t[array_neg_.at(j)]);
@@ -127,9 +141,9 @@ int main()
 			}
 
 		}
-		
+
 	}
-	
+
 	for (int i = 0; i < array_pos.size(); i++)
 	{
 
