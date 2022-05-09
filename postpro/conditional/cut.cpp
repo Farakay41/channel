@@ -17,6 +17,7 @@ using Matrix_int = std::vector < std::vector<int> >;
 
 using Pair = std::pair<std::vector<double>, Matrix_int>;
 
+using Matrix_dimz_double = std::array<std::vector<double>, DIMZ>;
 
 
 //using tensor = std::array<std::vector<Pair>, DIMZ>;
@@ -685,15 +686,16 @@ int main()
 
 	//using Matrix = std::array<std::vector<double>, 2>;
 
-	std::vector < std::vector<double> > ul;
+	//std::vector < std::vector<double> > ul;
 
 	
    //ul.resize(DIMZ, std::vector<double>(num));
 
 	//ul.resize(DIMZ, std::vector<double>(num));
 
-	ul.resize((std::vector<double>(DIMZ), num));
+	//ul.resize((std::vector<double>(DIMZ), num));
 
+	Matrix_dimz_double ul;
 	//ul = Ul;
 	//std::cout << Ul.size();
 
@@ -708,9 +710,11 @@ int main()
 
 	}
 
-		std::vector < std::vector<double> > us;
+		//std::vector < std::vector<double> > us;
 
-	us.resize((std::vector<double>(DIMZ), num));
+		Matrix_dimz_double us;
+
+	//us.resize((std::vector<double>(DIMZ), num));
 		
 
 		for (int j = 0; j < DIMZ; ++j)

@@ -10,6 +10,9 @@ using Matrix = std::vector < std::vector<double> >; // This is just an alias for
 
 using Matrix2 = std::array <std::vector<double>, 2>;
 
+
+using Matrix_dimz_double = std::array<std::vector<double>, DIMZ>;
+
 //This is the main function for calculating the averaged velocity signals across the zero-crossings
 
 std::vector<double> cut_velocity(std::vector <double> large, std::vector <double> small, std::vector <int> positions, int n)
@@ -228,12 +231,13 @@ int main()
 
 	//using Matrix = std::array<std::vector<double>, 2>;
 
-	std::vector < std::vector<double> > ul;
+	//std::vector < std::vector<double> > ul;
 
-	ul.resize( DIMZ, std::vector<double> (num));
+	//ul.resize( DIMZ, std::vector<double> (num));
 	//ul.resize((std::vector<double>(DIMZ), num));
 
-
+	Matrix_dimz_double ul;
+		
 	for (int j = 0; j < DIMZ; ++j)
 	{
 		for (int i = 0; i < num; ++i)
@@ -246,10 +250,12 @@ int main()
 	}
 
 
-	std::vector < std::vector<double> > us;
+	//std::vector < std::vector<double> > us;
 
-	us.resize(DIMZ, std::vector<double>(num));
+	//us.resize(DIMZ, std::vector<double>(num));
 	//us.resize((std::vector<double>(DIMZ), num));
+
+	Matrix_dimz_double us;
 
 	for (int j = 0; j < DIMZ; ++j)
 	{

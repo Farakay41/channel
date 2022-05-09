@@ -13,7 +13,7 @@
 constexpr auto DIMZ = 2048;
 
 using Matrix_dimz = std::array<std::vector<int>, DIMZ>;
-
+using Matrix_dimz_double = std::array<std::vector<double>, DIMZ>;
 
 
 int main()
@@ -36,11 +36,12 @@ int main()
 	//std::cout << num;
 	//using Matrix = std::array<std::vector<double>, 2>;
 
-	std::vector < std::vector<double> > ul;
-  ul.resize((std::vector<double>(DIMZ), num));
-	//
-  ul.resize( DIMZ, (std::vector<double>(num)));
+	//td::vector < std::vector<double> > ul;
+  //ul.resize((std::vector<double>(DIMZ), num));
 
+  //ul.resize( DIMZ, (std::vector<double>(num)));
+
+	Matrix_dimz_double ul;
 
 
 
@@ -64,7 +65,7 @@ int main()
 			ul[j].push_back(Ul.at((i * DIMZ) + j));
 
 			//std::cout << ul[j].at(i) << std::endl;
-			std::cout << "fhb" << ul[j].at(i) << std::endl;
+			//std::cout << "fhb" << ul[j].at(i) << std::endl;
 		}
 
 	}
