@@ -7,6 +7,16 @@ Created on Wed Mar 16 14:23:31 2022
 
 import numpy as np
 import matplotlib.pyplot as plt
+from numpy import mean
+from numpy import std
+from scipy.stats import norm
+import scipy.integrate as integrate
+from numpy import hstack
+from numpy import asarray
+from numpy import exp
+
+from sklearn.neighbors import KernelDensity
+from sklearn.utils.fixes import parse_version
 
 #function reads binary file and writes to an array
 def read_file(filename):
@@ -63,6 +73,8 @@ print('The maximum interval is ' + str(max_diff) + '\n')
 min_diff = np.min(diff_array)
 print('The minimum interval is ' + str(min_diff) + '\n')
 
+std_diff = np.std(diff_array)
+
 average_diff = np.mean(diff_array) 
 print('The average of the intervals is ' + str(round(average_diff, 3)) + '\n')
 
@@ -78,4 +90,42 @@ print('The 3rd quartile of the intervals is ' + str(Third_quartile_diff) + '\n')
 Int_Range_diff = Third_quartile_diff - First_quartile_diff
 
 print('The interquartile range of the intervals is ' + str(Int_Range_diff) + '\n')
-    
+
+
+plt.hist(diff_array, bins=50)
+plt.show()
+
+
+
+dist = norm(average_diff, std_diff)
+
+values = [value for value in range(min_diff, max_diff)]
+
+probabilities = [dist.pdf(value) for value in values]
+
+plt.hist(diff_array, bins=10, density=True)
+
+plt.plot(values, probabilities)
+plt.show()
+
+
+
+model = KernelDensity(bandwidth=3, kernel='gaussian')
+
+diff_array = diff_array.reshape((len(diff_array), 1))
+
+model.fit(diff_array)
+
+
+values = asarray([value for value in range (min_diff, max_diff) ])
+
+values = values.reshape((len(values), 1))
+
+probabilities = model.score_samples(values)
+probabilities = exp(probabilities)
+
+plt.hist(diff_array, bins=10, density=True)
+
+plt.plot(values[:], probabilities)
+plt.show()
+

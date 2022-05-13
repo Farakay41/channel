@@ -15,16 +15,17 @@ using Matrix = std::vector < std::vector<double> >; // This is just an alias for
 
 using Matrix_int = std::vector < std::vector<int> >;
 
-using Pair = std::pair<std::vector<double>, Matrix_int>;
+using Matrix2_int = std::array<std::vector<int>, 2>;
+
+using Pair = std::pair<std::vector<double>, Matrix2_int>;
 
 using Matrix_dimz_double = std::array<std::vector<double>, DIMZ>;
 
 
-//using tensor = std::array<std::vector<Pair>, DIMZ>;
-
 using Matrix2 = std::array<std::vector<double>, 2>; // This is just an alias for 2D vector
 using Matrix3 = std::array<std::vector<double>, 3>;
 
+ // This is just an alias for 2D vector
 
 using Pair_T = std::pair<Matrix2, std::vector<int> >;
 
@@ -49,26 +50,29 @@ Pair cut_velocity(std::vector <double> large, std::vector <double> small, std::v
 
 	{
 		int pos = positions.at(i);
-		//std::cout <<"fff" << pos << std::endl;
+		
 		w.push_back(large.at(pos) / (large.at(pos) - large.at(pos + 1)));
-		//std::cout << "ZR" << w.at(i - 1) << std::endl;
+		//std::cout << "weights at " << w.at(i - 1) << " = " << std::endl;
 	}
 
+	//the arrays below take in the distances between a particular zero crossing and preceding and successive zero crossings
 	std::vector<int> diff_pre;
 	std::vector<int> diff_suc;
 
-
+	//to solve for positive to negative
 	if (type == "pos_to_neg")
 
 	{
 		for (int i = 1; i < (size - 1); ++i)
 		{
-			int p = positions.at(i);
-			int p_minus = positions.at(i - 1);
-			int p_plus = positions.at(i + 1);
-			int front_diff = p_plus - p;
-			int back_diff = p - p_minus;
+			
+			//int p_minus = positions.at(i - 1);
+			//int p_plus = positions.at(i + 1);
 
+			//int front_diff = p_plus - p;
+			//int back_diff = p - p_minus;
+			
+			int p = positions.at(i);
 			int n = 0;
 			while ( (large.at(p) > 0.0) && (p >= limit[0]) )  
 			{
@@ -76,7 +80,7 @@ Pair cut_velocity(std::vector <double> large, std::vector <double> small, std::v
 				p--;
 
 			}
-
+			
 			diff_pre.push_back(n);
 
 			int p_ = positions.at(i) + 1;
@@ -87,24 +91,21 @@ Pair cut_velocity(std::vector <double> large, std::vector <double> small, std::v
 				p_++;
 
 			}
-
+			
 			diff_suc.push_back(m);
 
 		}
 
 	}
 
+	//to solve for negative to positive
 	else
 	{
 
 		for (int i = 1; i < (size - 1); ++i)
 		{
-			int p = positions.at(i);
-			int p_minus = positions.at(i - 1);
-			int p_plus = positions.at(i + 1);
-			int front_diff = p_plus - p;
-			int back_diff = p - p_minus;
 
+			int p = positions.at(i);
 
 			int n = 0;
 			while ((large.at(p) < 0.0) && (p >= limit[2]) )
@@ -115,7 +116,7 @@ Pair cut_velocity(std::vector <double> large, std::vector <double> small, std::v
 
 			}
 			//std::cout << n << std::endl;
-
+			
 			diff_pre.push_back(n);
 
 			int p_ = positions.at(i) + 1 ;
@@ -127,6 +128,7 @@ Pair cut_velocity(std::vector <double> large, std::vector <double> small, std::v
 
 			}
 			//std::cout << n << std::endl;
+			
 			diff_suc.push_back(m);
 
 		}
@@ -141,6 +143,7 @@ Pair cut_velocity(std::vector <double> large, std::vector <double> small, std::v
 	{
 
 		num_pre.push_back(floor(diff_pre.at(i) / 2));
+
 		num_suc.push_back(floor(diff_suc.at(i) / 2));
 
 	}
@@ -156,9 +159,9 @@ Pair cut_velocity(std::vector <double> large, std::vector <double> small, std::v
 		//std::cout << num_suc.at(i) << std::endl;
 	}
 
-	Matrix_int diff_count;
+	Matrix2_int diff_count;
 
-	diff_count.resize((std::vector<double>(2), num_pre.size()));
+	//diff_count.resize((std::vector<double>(2), num_pre.size()));
 
 
 	for (int i = 0; i < (num_pre.size()); ++i)
@@ -175,18 +178,17 @@ Pair cut_velocity(std::vector <double> large, std::vector <double> small, std::v
 
 	}
 
-	std::vector<double> cut_vel;
-
-
 
 	// the matrix takes in the cut small scale velocity for each zero crossing position
+	std::vector<double> cut_vel;
+
 	for (int i = 1; i < (size - 1); i++) // for each of the zero-crossing positions
 	{
 
-		int  temp = positions.at(i); // allocates a variable for each zero crossing positions
+		int  temp = positions.at(i); 
 
 
-		for (int j = 0; j < (num_pre.at(i - 1) + num_suc.at(i - 1)); j++) // n is the number of small scale velocity signals and time cut for each zero-crossing position
+		for (int j = 0; j < (num_pre.at(i - 1) + num_suc.at(i - 1)); j++) 
 
 		{
 			int loc = (temp - (num_pre.at(i - 1)) + j);
@@ -197,45 +199,44 @@ Pair cut_velocity(std::vector <double> large, std::vector <double> small, std::v
 
 			cut_vel.push_back(vel);
 
-			std::cout<<vel << std::endl;
+			//std::cout<<vel << std::endl;
 		}
 
 		
 	}
 	
-	//std::cout << "size" << cut_vel.size();
-	//std::cout << cut_vel.at(304066) << std::endl;
-	//std::cout << cut_vel[0][0]<< std::endl;
-	//std::cout << cut_vel[1][0] << std::endl;
-	//std::cout << cut_vel[2][0] << std::endl;
+	
+ return { cut_vel, diff_count };
 
-	return { cut_vel, diff_count };
 }
 
 
 Pair_T average_cut_velocity(Pair velocity, std::vector <int> positions)
 {
 
-	//std::cout << velocity.first.at(304067) << std::endl;
 
 	const int size = positions.size();
 
-	//std::cout << "size" << size;
 	std::vector<int> length_vel;
 
 	for (int i = 1; i < (size - 1); i++)
-
 	{
-
+       //length_vel takes in the size of the cut velocities for each zero crossing + 2. 
+		//we add 2 to the size so as to allow for padding with -1e-6 later on, since the cut velocities are initially of unequal sizes
 		length_vel.push_back(velocity.second[0].at(i - 1) + velocity.second[1].at(i - 1) + 2);
 
 	}
+
 
 	//int max_2 = *std::max_element(length_vel.begin(), length_vel.end());
 
 	//std::cout << max_2;
 	//had issues using the vector library, had to use a dynamic array
+
+	//This is an array which takes all the cut velocities for all zero-crossings with the -1e-6 padding
+
 	double* cut_velo = new double[10000000];
+
 
 	std::vector <double> averaged;
 	std::vector <double> vel_sum;
@@ -244,17 +245,16 @@ Pair_T average_cut_velocity(Pair velocity, std::vector <int> positions)
 	std::vector<int> length_1;
 	std::vector<int> length_2;
 
-	/*I try to make the arrays same size by padding with zero where necessary.So i use the zero - crossing position with the highest preceding velocities when cut to calculate
-	how much zeros other zero crossing position needs befor the zero crossing*/
+	//I try to make the arrays same size by padding with -1e-6 where necessary so its easy for averaging.
+
+	//Note: 1) velocity.second[0] = preceding size
+	 //     2) velocity.second[0] = succesive size
 
 	for (int i = 1; i < (size - 1); i++)
-
 	{
-		//std::cout << velocity.second[0].at(i - 1);
-		//(num_pre.at(i - 1) + num_suc.at(i - 1))
+		
 		length_1.push_back(velocity.second[0].at(i - 1));
-		//std::cout << length.at(i-1);
-		//std::cout << length.at(i - 1) << std::endl;
+
 	}
 
 	int max = *std::max_element(length_1.begin(), length_1.end());
@@ -268,7 +268,7 @@ Pair_T average_cut_velocity(Pair velocity, std::vector <int> positions)
 
 	int max_3 = *std::max_element(length_2.begin(), length_2.end());
 
-	int array_size = max + max_3 + 2;
+	int array_size = max + max_3 + 2; //
 
 
 
@@ -277,15 +277,12 @@ Pair_T average_cut_velocity(Pair velocity, std::vector <int> positions)
 
 	{
 
-		//int fill = local_size - min;
-
 
 		for (int j = 0; j < (max - velocity.second[0].at(i - 1)) + 1; j++)
 
 		{
 
-
-			cut_velo[(array_size * (i - 1)) + j] = -1e-12;
+			cut_velo[(array_size * (i - 1)) + j] = -1e-6;
 
 		}
 		//std::cout << cut_velo[i - 1].size() << std::endl;
@@ -296,12 +293,9 @@ Pair_T average_cut_velocity(Pair velocity, std::vector <int> positions)
 		for (int j = 0; j < (local_size); j++)
 		{
 
-			//cut_velo[i - 1].push_back(velocity[0][i - 1].at(j));
-
-			//cut_velo.at(((size - 2) * i) + (max - velocity.second[0].at(i - 1)) + j);
-			//double a =
 
 			cut_velo[(array_size * (i - 1)) + (max - velocity.second[0].at(i - 1)) + 1 + j] = velocity.first.at(total_size - local_size + j);
+
 
 			// std::cout << cut_velo[(max_2 * (i - 1)) + (max - velocity.second[0].at(i - 1)) + 1 + j] << std::endl;
 		}
@@ -322,7 +316,7 @@ Pair_T average_cut_velocity(Pair velocity, std::vector <int> positions)
 		for (int j = 0; j < (max_3 - velocity.second[1].at(i - 1)) + 1; j++)
 		{
 			//cut_velo[(((size - 2) * i) + (max - velocity.second[0].at(i - 1)) + local_size + j)] = (0.0);
-			cut_velo[(array_size * (i - 1)) + (max - velocity.second[0].at(i - 1)) + 1 + local_size + j] = -1e-12;
+			cut_velo[(array_size * (i - 1)) + (max - velocity.second[0].at(i - 1)) + 1 + local_size + j] = -1e-6;
 
 		}
 
@@ -341,7 +335,7 @@ Pair_T average_cut_velocity(Pair velocity, std::vector <int> positions)
 		{
 			double temp = cut_velo[((array_size * (j - 1)) + i)];
 
-			if (temp == -1e-12)
+			if (temp <= -1e-7)
 			{
 				num += 0;
 			}
@@ -428,8 +422,6 @@ std::vector<double> average_ave(std::vector<double> velocity, std::vector<int> p
 	std::vector<int> length_1;
 	std::vector<int> length_2;
 
-	/*I try to make the arrays same size by padding with zero where necessary.So i use the zero - crossing position with the highest preceding velocities when cut to calculate
-	how much zeros other zero crossing position needs befor the zero crossing*/
 
 	for (int i = 0; i < extent; i++)
 
@@ -466,7 +458,7 @@ std::vector<double> average_ave(std::vector<double> velocity, std::vector<int> p
 		{
 
 
-			cut_velo[(array_size * i) + j] = -1e-12;
+			cut_velo[(array_size * i) + j] = -1e-6;
 
 		}
 
@@ -494,7 +486,7 @@ std::vector<double> average_ave(std::vector<double> velocity, std::vector<int> p
 		for (int j = 0; j < (max_3 - succ.at(i)) + 1; j++)
 		{
 
-			cut_velo[(array_size * (i)) + (max - pred.at(i)) + 1 + local_size + j] = -1e-12;
+			cut_velo[(array_size * (i)) + (max - pred.at(i)) + 1 + local_size + j] = -1e-6;
 
 		}
 
@@ -511,7 +503,7 @@ std::vector<double> average_ave(std::vector<double> velocity, std::vector<int> p
 		{
 			double temp = cut_velo[((array_size * (j)) + i)];
 
-			if (temp == -1e-12)
+			if (temp <= -1e-7)
 			{
 				num += 0;
 			}
@@ -585,13 +577,6 @@ std::vector<double> average_ave(std::vector<double> velocity, std::vector<int> p
 
 }
 
-
-inline std::vector<int> read_vector_from_disk(std::string file_path)
-{
-	std::ifstream instream(file_path, std::ios::in | std::ios::binary);
-	std::vector<int> data((std::istreambuf_iterator<char>(instream)), std::istreambuf_iterator<char>());
-	return data;
-}
 
 
 int main()
@@ -868,9 +853,9 @@ int main()
 			pre_neg.push_back(local_pre);
 			suc_neg.push_back(local_suc);
 
-		std::cout << "hzu" << cut_us_Neg.first[0].size();
+		//std::cout << "hzu" << cut_us_Neg.first[0].size();
 
-		std::cout << "tu" << local_pre + local_suc;
+		//std::cout << "tu" << local_pre + local_suc;
 
 			for (int i = 0; i < cut_us_Neg.first[0].size(); i++)
 			{
@@ -882,8 +867,8 @@ int main()
 
 
 			}
-			std::cout << "yd" << vel_matrix_neg.size() << std::endl;
-			std::cout << "grg" << ensemble_neg.size() << std::endl;
+			//std::cout << "yd" << vel_matrix_neg.size() << std::endl;
+			//std::cout << "grg" << ensemble_neg.size() << std::endl;
 
 			
 			counter_neg++;
@@ -948,7 +933,6 @@ int main()
 	{
 		time_file_N.write((char*)(&averaged_neg_ens[i]), sizeof(double));
 	}
-
 
 
 

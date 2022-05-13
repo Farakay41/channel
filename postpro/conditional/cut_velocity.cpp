@@ -76,7 +76,7 @@ Pair cut_velocity(std::vector <double> large, std::vector <double> small, std::v
 
 			}
 
-			diff_suc.push_back(n);
+			diff_suc.push_back(m);
 
 		}
 
@@ -115,7 +115,7 @@ Pair cut_velocity(std::vector <double> large, std::vector <double> small, std::v
 
 			}
 			std::cout << n << std::endl;
-			diff_suc.push_back(n);
+			diff_suc.push_back(m);
 
 		}
 
@@ -467,6 +467,11 @@ int main()
 
 	std::vector<double> us(M / sizeof(double));
 	infile_s.read(reinterpret_cast<char*>(us.data()), static_cast<std::streamsize>(us.size()) * sizeof(double));
+
+
+
+	
+
 
 
 	//This reads in the large scale velocity signals from a binary file and write it into an array
