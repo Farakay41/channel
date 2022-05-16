@@ -29,6 +29,43 @@ using Matrix3 = std::array<std::vector<double>, 3>;
 
 using Pair_T = std::pair<Matrix2, std::vector<int> >;
 
+
+
+std::vector<int> read_int(std::string filename)
+{
+
+	std::ifstream infile_a(filename, std::ifstream::binary);
+
+	infile_a.seekg(0, infile_a.end);
+	int N = infile_a.tellg();
+	infile_a.seekg(0, infile_a.beg);
+
+	std::vector<int> array(N / sizeof(int));
+	infile_a.read(reinterpret_cast<char*>(array.data()), static_cast<std::streamsize>(array.size()) * sizeof(int));
+
+	return array;
+
+}
+
+
+std::vector<double> read_double(std::string filename)
+{
+
+	std::ifstream infile_a(filename, std::ifstream::binary);
+
+	infile_a.seekg(0, infile_a.end);
+	int N = infile_a.tellg();
+	infile_a.seekg(0, infile_a.beg);
+
+	std::vector<double> array(N / sizeof(double));
+	infile_a.read(reinterpret_cast<char*>(array.data()), static_cast<std::streamsize>(array.size()) * sizeof(double));
+
+	return array;
+
+}
+
+
+
 //This is the main function for calculating the averaged velocity signals across the zero-crossings
 Pair cut_velocity(std::vector <double> large, std::vector <double> small, std::vector <int> positions, int n, std::string type, std::vector <int> limit)
 
@@ -585,49 +622,28 @@ int main()
 
 	//Read in the positions for negative to positive zero crossings
 
-	std::ifstream infile_a("neg_pos.out", std::ifstream::binary);
-
-	infile_a.seekg(0, infile_a.end);
-	int N = infile_a.tellg();
-	infile_a.seekg(0, infile_a.beg);
-
-	std::vector<int> array_neg(N / sizeof(int));
-	infile_a.read(reinterpret_cast<char*>(array_neg.data()), static_cast<std::streamsize>(array_neg.size()) * sizeof(int));
-
-	for (int i = 0; i < array_neg.size(); ++i)
-	{
-		//std::cout << array_neg.at(i) << std::endl;
-	}
+	
+	std::vector<int> array_neg;
+	array_neg = read_int("neg_pos.out");
 
 
-	std::ifstream infile_ap("pos_neg.out", std::ifstream::binary);
-
-	infile_ap.seekg(0, infile_ap.end);
-	int P = infile_ap.tellg();
-	infile_ap.seekg(0, infile_ap.beg);
-
-	std::vector<int> array_pos(P / sizeof(int));
-	infile_ap.read(reinterpret_cast<char*>(array_pos.data()), static_cast<std::streamsize>(array_pos.size()) * sizeof(int));
+	std::vector<int> array_pos;
+	array_pos = read_int("pos_neg.out");
 
 
-	std::ifstream infile_s("size_pos_neg.out", std::ifstream::binary);
-
-	infile_s.seekg(0, infile_s.end);
-	int P_ = infile_s.tellg();
-	infile_s.seekg(0, infile_s.beg);
-
-	std::vector<int> size_array_pos(P_ / sizeof(int));
-	infile_s.read(reinterpret_cast<char*>(size_array_pos.data()), static_cast<std::streamsize>(size_array_pos.size()) * sizeof(int));
+	std::vector<int> size_array_neg;
+	size_array_neg = read_int ("size_neg_pos.out");
 
 
-	std::ifstream infile_k("size_neg_pos.out", std::ifstream::binary);
+	std::vector<int> size_array_pos;
+	size_array_pos = read_int("size_pos_neg.out");
+	
+	std::vector<double> Us;
+	Us = read_double("us.out");
 
-	infile_k.seekg(0, infile_k.end);
-	int N_ = infile_k.tellg();
-	infile_k.seekg(0, infile_k.beg);
 
-	std::vector<int> size_array_neg(N_ / sizeof(int));
-	infile_k.read(reinterpret_cast<char*>(size_array_neg.data()), static_cast<std::streamsize>(size_array_neg.size()) * sizeof(int));
+	std::vector<double> Ul;
+	Ul = read_double("ul.out");
 
 
 
@@ -642,29 +658,8 @@ int main()
 	lim.push_back(*std::max_element(array_pos.begin(), array_pos.end()));
 
 
-	std::ifstream infile_st("us.out", std::ifstream::binary);
-
-	infile_st.seekg(0, infile_st.end);
-	int M = infile_st.tellg();
-	infile_st.seekg(0, infile_st.beg);
-
-	std::vector<double> Us(M / sizeof(double));
-	infile_st.read(reinterpret_cast<char*>(Us.data()), static_cast<std::streamsize>(Us.size()) * sizeof(double));
 
 
-	std::ifstream infile_ar("ul.out", std::ifstream::binary);
-
-	infile_ar.seekg(0, infile_ar.end);
-	int Pj = infile_ar.tellg();
-	infile_ar.seekg(0, infile_ar.beg);
-
-	std::vector<double> Ul(Pj / sizeof(double));
-	infile_ar.read(reinterpret_cast<char*>(Ul.data()), static_cast<std::streamsize>(Ul.size()) * sizeof(double));
-
-
-
-
-	//std::cout << Ul.size();
 
 	const int num = Ul.size() / DIMZ;
 
@@ -877,8 +872,6 @@ int main()
 
 
 	
-
-
 	double dt = 0.000127175055596395;
 
 

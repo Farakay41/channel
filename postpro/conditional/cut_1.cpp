@@ -15,6 +15,45 @@ using Matrix_dimz_double = std::array<std::vector<double>, DIMZ>;
 
 //This is the main function for calculating the averaged velocity signals across the zero-crossings
 
+
+
+
+std::vector<int> read_int(std::string filename)
+{
+
+	std::ifstream infile_a(filename, std::ifstream::binary);
+
+	infile_a.seekg(0, infile_a.end);
+	int N = infile_a.tellg();
+	infile_a.seekg(0, infile_a.beg);
+
+	std::vector<int> array(N / sizeof(int));
+	infile_a.read(reinterpret_cast<char*>(array.data()), static_cast<std::streamsize>(array.size()) * sizeof(int));
+
+	return array;
+
+}
+
+
+std::vector<double> read_double(std::string filename)
+{
+
+	std::ifstream infile_a(filename, std::ifstream::binary);
+
+	infile_a.seekg(0, infile_a.end);
+	int N = infile_a.tellg();
+	infile_a.seekg(0, infile_a.beg);
+
+	std::vector<double> array(N / sizeof(double));
+	infile_a.read(reinterpret_cast<char*>(array.data()), static_cast<std::streamsize>(array.size()) * sizeof(double));
+
+	return array;
+
+}
+
+
+
+
 std::vector<double> cut_velocity(std::vector <double> large, std::vector <double> small, std::vector <int> positions, int n)
 
 {
@@ -160,69 +199,31 @@ Matrix2 average_ave(std::vector<double> velocity, int extent, int n, double dt)
 
 int main()
 {
-	//Read in the positions for positive to negative zero crossings
+	
 
-	std::ifstream infile("pos_neg.out", std::ifstream::binary);
-
-	infile.seekg(0, infile.end);
-	int P = infile.tellg();
-	infile.seekg(0, infile.beg);
-
-	std::vector<int> array_pos(P / sizeof(int));
-	infile.read(reinterpret_cast<char*>(array_pos.data()), static_cast<std::streamsize>(array_pos.size()) * sizeof(double));
+	std::vector<int> array_neg;
+	array_neg = read_int("neg_pos.out");
 
 
-	//Read in the positions for negative to positive zero crossings
-
-	std::ifstream infile_a("neg_pos.out", std::ifstream::binary);
-
-	infile_a.seekg(0, infile_a.end);
-	int N = infile_a.tellg();
-	infile_a.seekg(0, infile_a.beg);
-
-	std::vector<int> array_neg(N / sizeof(int));
-	infile_a.read(reinterpret_cast<char*>(array_neg.data()), static_cast<std::streamsize>(array_neg.size()) * sizeof(int));
+	std::vector<int> array_pos;
+	array_pos = read_int("pos_neg.out");
 
 
-	std::ifstream infile_s("size_pos_neg.out", std::ifstream::binary);
-
-	infile_s.seekg(0, infile_s.end);
-	int P_ = infile_s.tellg();
-	infile_s.seekg(0, infile_s.beg);
-
-	std::vector<int> size_array_pos(P_ / sizeof(int));
-	infile_s.read(reinterpret_cast<char*>(size_array_pos.data()), static_cast<std::streamsize>(size_array_pos.size()) * sizeof(int));
+	std::vector<int> size_array_neg;
+	size_array_neg = read_int("size_neg_pos.out");
 
 
-	std::ifstream infile_k("size_neg_pos.out", std::ifstream::binary);
+	std::vector<int> size_array_pos;
+	size_array_pos = read_int("size_pos_neg.out");
 
-	infile_k.seekg(0, infile_k.end);
-	int N_ = infile_k.tellg();
-	infile_k.seekg(0, infile_k.beg);
-
-	std::vector<int> size_array_neg(N_ / sizeof(int));
-	infile_k.read(reinterpret_cast<char*>(size_array_neg.data()), static_cast<std::streamsize>(size_array_neg.size()) * sizeof(int));
+	std::vector<double> Us;
+	Us = read_double("us.out");
 
 
+	std::vector<double> Ul;
+	Ul = read_double("ul.out");
 
-	std::ifstream infile_st("us.out", std::ifstream::binary);
-
-	infile_st.seekg(0, infile_st.end);
-	int M = infile_st.tellg();
-	infile_st.seekg(0, infile_st.beg);
-
-	std::vector<double> Us(M / sizeof(double));
-	infile_st.read(reinterpret_cast<char*>(Us.data()), static_cast<std::streamsize>(Us.size()) * sizeof(double));
-
-
-	std::ifstream infile_ar("ul.out", std::ifstream::binary);
-
-	infile_ar.seekg(0, infile_ar.end);
-	int Pj = infile_ar.tellg();
-	infile_ar.seekg(0, infile_ar.beg);
-
-	std::vector<double> Ul(Pj / sizeof(double));
-	infile_ar.read(reinterpret_cast<char*>(Ul.data()), static_cast<std::streamsize>(Ul.size()) * sizeof(double));
+	
 
     //std::cout << Ul.size();
 
