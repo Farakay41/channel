@@ -10,13 +10,19 @@
 
 // This program writes out the positions of zero-crossings in a large-scale velocity signal
 
-constexpr auto DIMZ = 2048;
+constexpr auto DIMZ = 2048; // TODO: READ THIS VALUE FROM A FILE! If too difficult: leave it hard coded
+// TODO: num is too generic as a variable name -> call it DIMT
 
-using Matrix_dimz = std::array<std::vector<int>, DIMZ>;
+using Matrix_dimz = std::array<std::vector<int>, DIMZ>; // we are going to increase the size of this array at runtime, but this is good!
 using Matrix_dimz_double = std::array<std::vector<double>, DIMZ>;
 
 
-int main()
+// TODO: create a new main which calls the new function
+
+
+int main() // TODO: turn this into a function find_zero_crossings(Ul, time) -> dumps everything to file + returns (array_pos and array_neg, size_pos, size_neg)
+// when you dump: take the name of the input file (maybe you need pass name of the file as argument as well)
+// ul_bottom_101.out -> ul_bottom_101.npzc *I'm making this up*
 {
 	std::cout << " pleaee work";
 	//This reads in the large scale velocity signals from a binary file and write it into an array
@@ -41,22 +47,26 @@ int main()
 
   //ul.resize( DIMZ, (std::vector<double>(num)));
 
-	Matrix_dimz_double ul;
+	Matrix_dimz_double ul; // ul[j][i]
 
 
 
   for (int j = 0; j < DIMZ; ++j)
   {
+	  // debug
 	  std::cout << "hvdkjkjdk" << ul[j].size() << std::endl;
 
   }
-  
 
+  // TODO: suggestion - this is pseudocode
+  // define a type like timevec_type = type(vector<double num>)
+  // define the array as array<timevec_type DIMZ>
+  // this hopefully avoids using snippet on github
 
   //ul.resize((std::vector<double>(DIMZ), num));
 
-	//ul = Ul;
 
+	// transposing the array ul = Ul^T
 	for (int j = 0; j < DIMZ; ++j)
 	{
 		for (int i = 0; i < num; ++i)
@@ -72,7 +82,7 @@ int main()
 	
 	for (int i = 0; i < ul[0].size(); i++)
 	{
-
+		// debug
 		std::cout << ul[100].at(i) << std::endl;
 	}
 
@@ -124,24 +134,31 @@ int main()
 	std::ifstream infil_txt("criterion.txt");
 	infil_txt >> threshold;
 
+	// TODO: check if there is some __easy__ c++ library for JSON or TOML -> all inputs in one file!
+
 
 	Matrix_dimz array_pos;
 	Matrix_dimz array_neg;
 
-	std::vector<int> size_pos;
+	std::vector<int> size_pos; // TODO: maybe use std::array with size DIMZ
 
-	std::vector<int> size_neg;
+	std::vector<int> size_neg; // TODO: maybe use std::array with size DIMZ
 
-	std::cout << ul[0].size();
+	std::cout << ul[0].size(); // debug line
 	for (int z = 0; z < DIMZ; z++)
 	{
 		
 
-		int i = 1; // to avoid the first "zero-crossing at time = 0"
-		 //positions for positive to negative is written to this array
+		int i = 1; // TODO: this can be 0, I think!
+		// to find a zero-crossing, you need two points!
+		//positions for positive to negative is written to this array
 
-		while (i < (ul[0].size() - 1))
-		{ // 'at' is for assessing an array element 
+		while (i < (ul[0].size() - 1)) // TODO: ul[0].size() is DIMT or num
+		{ // 'at' is for assessing an array element
+			// TODO: array.at() controls that you're not running out of bounds
+			// SO: array.at() is slower than array[], but safer
+			// BUT: we are crazy, we do not want safe code
+			// try to use [], if not working, .at() is also ok
 			if (((ul[z].at(i)) > 0) && ((ul[z].at(i + 1)) < 0))
 			{
 				//for every zero-crossing found, the positions is written to the array "array_pos"
@@ -156,11 +173,12 @@ int main()
 
 		//After this while loop, we have all the zero-crossings for positive to negative written in "array_pos"
 
-		int j = 1; // to avoid the first "zero-crossing at time = 0"
+		int j = 1; // TODO: this can be zero
+		// to avoid the first "zero-crossing at time = 0"
 
 
 
-		while (j < (ul[0].size() - 1 ))
+		while (j < (ul[0].size() - 1 )) // TODO: check corrections from previous loop
 		{
 			if (((ul[z].at(j)) < 0) && ((ul[z].at(j + 1)) > 0))
 			{
@@ -176,7 +194,17 @@ int main()
 		//2 -> implement a threshold system ( use some zero-crossings)
 
 
+		// TODO: I would "move" this whole switch to the function/program that calculates the average
+		// WHY: I want this program/function to calculate and save to disk all zero crossings
+		// ALSO: it's maybe easier to write a code that selects only zero-crossings that are good for 2nd method inside the loop that iterates over zero-crossings
 
+		// pseudo-code: in the "cut1" program, you have some loop over all zero crossings in z
+		// loop for i in "list of zero crossings at a given z-position" {
+		//		if (this_is_last_zerocrossing_at_this_z OR this_is_last_zerocrossing_at_this_z) continue;
+		//		if ( delta_t_left < threshold   OR   delta_t_right < threshold ) {
+		//  		continue
+		//  	}
+		// }
 		switch (method)
 		{
 
@@ -260,23 +288,22 @@ int main()
 
 		for (int i = 0; i < array_neg.size(); i++)
 		{
-
+			// this was debug
 			//std::cout << array_neg[z].at(i) << std::endl;
 		}
 
-
+		// TODO: these two arrays should not be vectros anymore
+		// do not use push back
+		// use size_pos[...] instead
 		size_pos.push_back(array_pos[z].size());
-       
-		
-
 		size_neg.push_back(array_neg[z].size());
 
 
-	std::cout << "uzt" << size_pos.at(z) << std::endl;
+	std::cout << "uzt" << size_pos.at(z) << std::endl; // debug line
 
 	}
 
-	for (int i = 0; i < array_pos[100].size(); i++)
+	for (int i = 0; i < array_pos[100].size(); i++) // debug line
 	{
 
 		//std::cout << ul[100].at(array_pos[100].at(i));
@@ -292,6 +319,7 @@ int main()
 		//std::cout <<" f" << array_pos.size() << std::endl;
 
 
+	// TODO: this should not be needed, if you change the code that saves the data
 	std::vector<int> array_neg_f;
 	std::vector<int> array_pos_f;
 
@@ -299,7 +327,7 @@ int main()
 	{
 		for (int i = 0; i < array_neg[z].size(); i++)
 		{
-			array_neg_f.push_back(array_neg[z].at(i));
+			array_neg_f.push_back(array_neg[z].at(i)); // TODO: do not use .at()
 
 		}
 
@@ -346,6 +374,8 @@ int main()
 
 	*/
 
+	// TODO: fix this whole section - find a method to write like this: array_pos_f[i][j]
+
 	std::fstream time_file_P;
 	time_file_P.open("pos_neg.out", std::ios::out | std::ios::binary);
 	for (int i = 0; i < array_pos_f.size(); i++)
@@ -385,6 +415,6 @@ int main()
 
 
 
-	return 0;
+	return 0; // TODO: return array_pos and array_neg, size_pos, size_neg
 
 }
