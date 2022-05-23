@@ -1,3 +1,4 @@
+#pragma once
 
 
 #include <iostream>
@@ -19,10 +20,13 @@ using Matrix_dimz_double = std::array<std::vector<double>, DIMZ>;
 
 using Matrix_dimz_2 = std::array<Matrix_dimz, 2>;
 
-using Matrix_2 = std::array < std::array<int, DIMZ>, 2 >;
+using Matrix_3 = std::array < std::array<int, DIMZ>, 3 >;
 
 
-using Pair = std::pair<Matrix_dimz_2, Matrix_2 >;
+using Giant_Matrix = std::pair<Matrix_dimz_2, Matrix_3 >;
+
+using Pair = std::pair<Giant_Matrix, std::vector<double> >;
+
 // TODO: create a new main which calls the new function
 
 
@@ -131,7 +135,7 @@ Pair find_zero_crossings(std::string ul_filename)
 		//positions for positive to negative is written to this array
 
 		while (i < (DIMT - 100)) // TODO: ul[0].size() is DIMT or num
-		{ 
+		{
 
 			if (((ul(z, i)) > 0) && ((ul(z, (i + 1))) < 0))
 			{
@@ -225,11 +229,11 @@ Pair find_zero_crossings(std::string ul_filename)
 
 
 
-	return { {array_pos, array_neg} , {size_pos, size_neg} }; // TODO: return array_pos and array_neg, size_pos, size_neg
+	return { {{array_pos, array_neg} , {size_pos, size_neg} } , Ul }; // TODO: return array_pos and array_neg, size_pos, size_neg
 
 }
 
-int main()
+/*int main()
 
 {
 	Pair ULE;
@@ -237,12 +241,13 @@ int main()
 	ULE = find_zero_crossings("ul.out");
 
 
-	std::cout << " check" << ULE.first[0][16].size() << std::endl;
+	std::cout << " check" << ULE.first.first[0][16].size() << std::endl;
 
-	std::cout << "another check" << ULE.second[1].size();
+	std::cout << "another check" << ULE.first.second[1].size();
 
 
 	return 0;
 
 
 }
+*/
