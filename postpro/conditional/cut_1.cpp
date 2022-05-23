@@ -13,8 +13,8 @@ using Matrix = std::vector < std::vector<double> >; // This is just an alias for
 
 using Matrix2 = std::array <std::vector<double>, 2>;
 
-
 using Matrix_dimz_double = std::array<std::vector<double>, DIMZ>;
+
 
 //This is the main function for calculating the averaged velocity signals across the zero-crossings
 
@@ -243,11 +243,7 @@ int main()
 	array_neg = zero_result.first.first[1];
 	
 
-
-
 	Ul = zero_result.second;
-
-
 
 
 	//std::cout << Ul.size();
@@ -312,7 +308,6 @@ int main()
 
 	
 	
-
 	std::ifstream ifs("inputed.json");
 
 	Json::Reader reader;
@@ -324,11 +319,9 @@ int main()
 
 
 
-	int starting_size_Pos = 0;
+	//int starting_size_Pos = 0;
 
-	std::vector <double> vel_matrix_pos;
-
-
+	//std::vector <double> vel_matrix_pos;
 
 
 	double average_vel_pos[(2 * num_of_cuts) - 1] = { 0 };
@@ -429,9 +422,9 @@ int main()
 	// TODO: fix code below as for the positive case
 
 
-	int starting_size_Neg = 0;
+	//int starting_size_Neg = 0;
 
-	std::vector <double> vel_matrix_neg;
+	//std::vector <double> vel_matrix_neg;
 
 	
 
