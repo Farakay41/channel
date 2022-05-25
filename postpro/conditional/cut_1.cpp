@@ -278,7 +278,7 @@ int main()
 		for (int i = 0; i < num; ++i)
 		{
 			
-			ul[j][i] = (Ul.at((i * DIMZ) + j));
+			ul[j][i] = Ul[(i * DIMZ) + j];
 
 		}
 
@@ -300,7 +300,7 @@ int main()
 		for (int i = 0; i < num; ++i)
 		{
 
-			us[j][i] = (Us.at((i * DIMZ) + j));
+			us[j][i] = Us[(i * DIMZ) + j];
 
 		}
 
