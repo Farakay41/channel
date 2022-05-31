@@ -37,35 +37,106 @@ array_pos = np.zeros([], dtype=np.intc)
 array_neg = np.zeros([], dtype=np.intc)
 
 # writes the zero-crossing positions for both positive to negative and vice-versa
-array_pos = read_file("pos_neg.out")
-array_neg = read_file("neg_pos.out")
 
-#For the combined array
-array = np.zeros([], dtype=np.intc)
-array = np.append(array_pos, array_neg)
+array_pos = read_file("ul.pnzc")
+array_neg = read_file("ul.npzc")
 
-#sort from lowest to largest
-array = np.sort(array, axis=None)
+print(len(array_pos) )
+
+
+
+size_array_pos = read_file("ul_size.pnzc")
+size_array_neg = read_file("ul_size.npzc")
+
+print((size_array_pos[0:50]) )
+
+
+#array= np.zeros([], dtype=np.intc)
+
+diff_array = []
+#diff_array = np.empty([], dtype=np.intc)
+
+starting_neg = 0
+starting_pos = 0
+
+
+
+for i in range(len(size_array_pos)):
+   
+   if (size_array_pos[i] <= 1) :
+     print(size_array_pos[i])
+     starting_pos = starting_pos + size_array_pos[i]; 
+     print(starting_pos)
+ 
+        
+   if (size_array_pos[i] > 1) :
+       
+     array_p = np.zeros([ size_array_pos[i] ], dtype=np.intc)
+     #array_p =[]
+     print(size_array_pos[i])
+     print("sth")
+     
+     for j in range((size_array_pos[i])):
+         
+       array_p[j] =  array_pos[ starting_pos  + j ]
+     #print(array_p)   
+       
+     starting_pos = starting_pos + size_array_pos[i]; 
+     print(starting_pos)
+   
+   if  (size_array_neg[i] <= 1 ):
+     print(size_array_neg[i])  
+     starting_neg = starting_neg + size_array_neg[i]; 
+     
+    
+   if (size_array_neg[i] > 1) :
+     print(size_array_neg[i])  
+     array_n = np.zeros([ size_array_neg[i] ], dtype=np.intc) 
+     
+     for j in range((size_array_neg[i])):
+        array_n[j] =  array_neg[ starting_neg  + j ]
+     #print(array_n)    
+       # print(array_n)
+     #print("f") 
+     
+     starting_neg = starting_neg + size_array_neg[i]; 
+   
+   #array= np.zeros([], dtype=np.intc)
+   
+   if (size_array_pos[i] + size_array_neg[i] >  2) :
+       
+     array = []
+   
+     if (size_array_pos[i] > 1) :             
+      array = np.append(array, array_p)  
+      print(array_p)
+     if (size_array_neg[i] > 1) : 
+      array = np.append(array, array_n) 
+      print(array_n)
+     array = np.sort(array, axis=None)
+     print(array)
+   
+   
+     diff_array_temp = np.zeros([(len(array)-1)], dtype=np.intc)
+   
+     for i in range((len(array) - 1)):
+           
+       diff_array_temp[i] = array[i+1] - array[i]
+   #print(diff_array_temp) 
+   
+     diff_array = np.append(diff_array_temp, diff_array)
+
+         
 
 
 
 print('Kindly find the combined zero-crossing positions below: \n')
 
-print(array)
+print(diff_array)
 print('\n')
 
-#array to take in the intervals between successive zero_crossing positions
-diff_array = np.zeros([len(array)-1], dtype=np.intc)
 
-i = 1
-while i < len(array):
-    diff_array[i-1] = array[i] - array[i-1]
-    i += 1
-    
-print('Kindly find the interval between succesive zero-crossing positions below: \n')
 
-print(diff_array)
-print('\n') 
 
 max_diff = np.max(diff_array)
 print('The maximum interval is ' + str(max_diff) + '\n')
@@ -92,6 +163,7 @@ Int_Range_diff = Third_quartile_diff - First_quartile_diff
 print('The interquartile range of the intervals is ' + str(Int_Range_diff) + '\n')
 
 
+
 plt.hist(diff_array, bins=50)
 plt.show()
 
@@ -99,13 +171,19 @@ plt.show()
 
 dist = norm(average_diff, std_diff)
 
-values = [value for value in range(min_diff, max_diff)]
+values = [value for value in range( int(min_diff), int(max_diff))]
 
 probabilities = [dist.pdf(value) for value in values]
 
 plt.hist(diff_array, bins=10, density=True)
 
 plt.plot(values, probabilities)
+
+plt.ylabel('PDF')
+#plt.xlim([-0.015, 0.015])
+plt.xlabel('Zero-crossings Intervals')
+plt.title('PDF for Zero-crossings Intervals')
+
 plt.show()
 
 
@@ -117,7 +195,9 @@ diff_array = diff_array.reshape((len(diff_array), 1))
 model.fit(diff_array)
 
 
-values = asarray([value for value in range (min_diff, max_diff) ])
+
+
+values = asarray([value for value in range ( int(min_diff), int(max_diff)) ])
 
 values = values.reshape((len(values), 1))
 
