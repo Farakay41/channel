@@ -1,0 +1,5 @@
+multi_cpp -> for all z positions
+cut_1.cpp -> for single z positions
+
+cut.cpp -> for method 3
+

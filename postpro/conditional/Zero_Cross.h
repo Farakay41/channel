@@ -12,7 +12,7 @@
 
 // This program writes out the positions of zero-crossings in a large-scale velocity signal
 
-constexpr auto DIMZ = 2048; // TODO: READ THIS VALUE FROM A FILE! If too difficult: leave it hard coded
+constexpr auto DIMZ = 2048; // 1536; // TODO: READ THIS VALUE FROM A FILE! If too difficult: leave it hard coded
 // TODO: num is too generic as a variable name -> call it DIMT
 
 using Matrix_dimz = std::array<std::vector<int>, DIMZ>; // we are going to increase the size of this array at runtime, but this is good!
@@ -129,12 +129,12 @@ Pair find_zero_crossings(std::string ul_filename)
 	{
 
 
-		int i = 100; // TODO: this can be 0, I think! // changed this to 100 because of the cutting for the velocity
+		int i = 0; // TODO: this can be 0, I think! // changed this to 100 because of the cutting for the velocity
 		//forgot to discuss this in the last meeting
 		// to find a zero-crossing, you need two points!
 		//positions for positive to negative is written to this array
 
-		while (i < (DIMT - 100)) // TODO: ul[0].size() is DIMT or num
+		while (i < (DIMT - 1)) // TODO: ul[0].size() is DIMT or num
 		{
 
 			if (((ul(z, i)) > 0) && ((ul(z, (i + 1))) < 0))
@@ -151,11 +151,11 @@ Pair find_zero_crossings(std::string ul_filename)
 
 		//After this while loop, we have all the zero-crossings for positive to negative written in "array_pos"
 
-		int j = 100; // TODO: this can be zero
+		int j = 0; // TODO: this can be zero
 		// to avoid the first "zero-crossing at time = 0"
 
 
-		while (j < (DIMT - 100)) // TODO: check corrections from previous loop
+		while (j < (DIMT - 1)) // TODO: check corrections from previous loop
 		{
 			if (((ul(z, j)) < 0) && ((ul(z, (j + 1))) > 0))
 			{
@@ -176,7 +176,7 @@ Pair find_zero_crossings(std::string ul_filename)
 		size_neg[z] = (array_neg[z].size());
 
 
-		std::cout << "uzt" << size_pos[z] << std::endl; // debug line
+		//std::cout << "uzt" << size_pos[z] << std::endl; // debug line
 
 	}
 

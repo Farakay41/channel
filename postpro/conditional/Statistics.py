@@ -41,7 +41,7 @@ array_neg = np.zeros([], dtype=np.intc)
 array_pos = read_file("ul.pnzc")
 array_neg = read_file("ul.npzc")
 
-print(len(array_pos) )
+print(len(array_pos) + len(array_neg))
 
 
 
@@ -133,8 +133,9 @@ for i in range(len(size_array_pos)):
 print('Kindly find the combined zero-crossing positions below: \n')
 
 print(diff_array)
-print('\n')
 
+
+print('\n')
 
 
 
@@ -171,24 +172,37 @@ plt.show()
 
 dist = norm(average_diff, std_diff)
 
+
+ 
 values = [value for value in range( int(min_diff), int(max_diff))]
+
+print(values)
 
 probabilities = [dist.pdf(value) for value in values]
 
-plt.hist(diff_array, bins=10, density=True)
+plt.hist(diff_array, bins=40, density=True)
 
-plt.plot(values, probabilities)
+value = np.zeros([(len(values))], dtype=float)
+
+for i in range(len(values)):   
+ value[i] = values[i] * 0.0007
+ 
+ 
+plt.plot(value, probabilities)
+
 
 plt.ylabel('PDF')
 #plt.xlim([-0.015, 0.015])
 plt.xlabel('Zero-crossings Intervals')
 plt.title('PDF for Zero-crossings Intervals')
+plt.grid()
 
+plt.savefig("hist.png",dpi=700)
 plt.show()
 
 
 
-model = KernelDensity(bandwidth=3, kernel='gaussian')
+model = KernelDensity(bandwidth=10, kernel='gaussian')
 
 diff_array = diff_array.reshape((len(diff_array), 1))
 
@@ -204,8 +218,11 @@ values = values.reshape((len(values), 1))
 probabilities = model.score_samples(values)
 probabilities = exp(probabilities)
 
-plt.hist(diff_array, bins=10, density=True)
+plt.hist(diff_array, bins=40, density=True)
 
 plt.plot(values[:], probabilities)
 plt.show()
+
+print(len(array_pos) + len(array_neg))
+
 

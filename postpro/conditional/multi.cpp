@@ -1,10 +1,11 @@
 
 
 #include "Zero_Cross.h"
+
 #include <jsoncpp/json/json.h>
 
 
-constexpr auto num_of_cuts = 20;
+constexpr auto num_of_cuts = 50;
 
 
 
@@ -66,14 +67,7 @@ void cut_velocity(std::vector <double> large, std::vector <double> small, std::v
 
 	t = read_double(time_filename);
 
-   //double dt = 0.000127175055596395;
-	
-	/*
-	for (int i = 0; i < large.size(); ++i)
-	{
-		t.push_back(i * dt);
-	}
-	*/
+
 
 	std::ifstream ifs("inputed.json");
 
@@ -90,8 +84,6 @@ void cut_velocity(std::vector <double> large, std::vector <double> small, std::v
 	threshold = obj["threshold"].asDouble();
 
 	method = obj["method"].asUInt();
-	
-
 
 	for (size_t i = 0; i < size; i++) // for each of the zero-crossing positions
 	{
@@ -112,7 +104,7 @@ void cut_velocity(std::vector <double> large, std::vector <double> small, std::v
 		//std::cout << "tw" << large.size();
 		//std::cout << "tw2" << n;
 
-		if ((temp <= n) || ( (large.size() - temp) <= n) )
+		if ((temp <= n) || ((large.size() - temp) <= n))
 		{
 
 
@@ -165,74 +157,72 @@ void cut_velocity(std::vector <double> large, std::vector <double> small, std::v
 					//int  temp = positions[i]; // allocates a variable for each zero crossing positions
 
 
-					if ((temp == positions[0]) || (temp == positions[size - 1]))
+				if ((temp == positions[0]) || (temp == positions[size - 1]))
 
+				{
+					continue;
+				}
+
+				else
+
+				{
+					int temp_plus = positions[i + 1];
+					int temp_neg = positions[i - 1];
+
+					double precedent_gap = t[temp] - t[temp_neg];
+
+					double successive_gap = (t[temp_plus] - t[temp]);
+
+					if ((precedent_gap < (threshold * 1.0)) && (successive_gap < (threshold * 1.0)))
 					{
+
 						continue;
+
 					}
 
 					else
-
 					{
-						int temp_plus = positions[i + 1];
-						int temp_neg = positions[i - 1];
 
-						double precedent_gap = t[temp] - t[temp_neg];
-
-						double successive_gap = (t[temp_plus] - t[temp]);
-
-						if ((precedent_gap < (threshold * 1.0)) && (successive_gap < (threshold * 1.0)))
+						for (size_t j = 0; j < ((2 * n) - 1); j++) // n is the number of small scale velocity signals and time cut for each zero-crossing position
 						{
+							//std::cout << "wer" << temp;
+							int loc = (temp - (n - 1) + j);
 
-							continue;
+
+							double vel = ((1 - w.at(i)) * small.at(loc)) + (w.at(i) * small.at(loc + 1));
+
+							vel_buf[j] += vel;
+
+							num_samples[j] += 1;
+
 
 						}
 
-						else
-						{
 
-							for (size_t j = 0; j < ((2 * n) - 1); j++) // n is the number of small scale velocity signals and time cut for each zero-crossing position
-							{
-								//std::cout << "wer" << temp;
-								int loc = (temp - (n - 1) + j);
-
-
-								double vel = ((1 - w.at(i)) * small.at(loc)) + (w.at(i) * small.at(loc + 1));
-
-								vel_buf[j] += vel;
-
-								num_samples[j] += 1;
-
-
-							}
-
-
-						}
 					}
 
-				//}
+				}
 
 			}
-		
-
-
-			
 
 
 		}
 
 
-
-
 	}
 
+
+
+
 }
+
+
 
 
 int main()
 {
 
-	
+
 	Matrix_dimz array_neg;
 	//array_neg = read_int("neg_pos.out");
 
@@ -253,23 +243,22 @@ int main()
 
 
 	std::vector<double> Us;
-	Us = read_double("us.out");
+	Us = read_double("us_test.out");
 
 
 	Pair zero_result;
 
-	zero_result = find_zero_crossings("ul.out");
+	zero_result = find_zero_crossings("ul_test.out");
 
 
 	array_pos = zero_result.first.first[0];
 	array_neg = zero_result.first.first[1];
-	
+
 
 	Ul = zero_result.second;
 
 
-	std::cout << "oa" << Ul.size();
-	std::cout << "oe" << Us.size();
+	//std::cout << Ul.size();
 
 	const int num = Ul.size() / DIMZ;
 	std::cout << "oe" << num;
@@ -300,7 +289,7 @@ int main()
 		//std::cout << "f" << ul[j].size() << std::endl;
 		for (int i = 0; i < num; ++i)
 		{
-			
+
 			ul[j][i] = Ul[(i * DIMZ) + j];
 
 		}
@@ -329,20 +318,22 @@ int main()
 
 	}
 
-	
-	
+
+
 	std::ifstream ifs("inputed.json");
 
 	Json::Reader reader;
-    Json::Value obj;
-    reader.parse(ifs, obj);
+	Json::Value obj;
+	reader.parse(ifs, obj);
 
 	double dt;
-    dt = obj["timestep"].asDouble();
+	dt = obj["timestep"].asDouble();
 
-	int p;
-	p = obj["z-position"].asInt();
 
+
+	//int starting_size_Pos = 0;
+
+	//std::vector <double> vel_matrix_pos;
 
 
 	double average_vel_pos[(2 * num_of_cuts) - 1] = { 0 };
@@ -350,9 +341,102 @@ int main()
 	double average_vel_pos_ave[(2 * num_of_cuts) - 1] = { 0 };
 
 	int counter_pos = 0;
-	double cut_us_Pos[(2 * num_of_cuts) - 1] = { 0 };
 
-	int divider_pos[(2 * num_of_cuts) - 1] = { 0 };
+	//int max_pos = *std::max_element(size_array_pos.begin(), size_array_pos.end());
+
+	for (int z = 0; z < DIMZ; z++)
+	{
+
+
+		//std::vector<double> cut_us_P; // cut small velocity and time for positive to negative
+
+		//std::vector<double> cut_us_Pos;
+
+
+	/*
+		std::vector <int> local_Pos;
+
+		local_Pos.resize(size_array_pos.at(z));
+
+		for (int i = 0; i < size_array_pos.at(z); i++) // loop over zero crossings at the current z
+		{
+
+			local_Pos[i] = (array_pos.at(starting_size_Pos + i)); // TODO: CHECK ME - I think this is not needed
+
+		}
+
+
+		starting_size_Pos = starting_size_Pos + size_array_pos[z];
+*/
+
+
+
+		double cut_us_Pos[(2 * num_of_cuts) - 1] = { 0 };
+
+		int divider_pos[(2 * num_of_cuts) - 1] = { 0 };
+
+		//std::cout << ul[z].size() << std::endl;
+
+		//cut_us_Pos = average_cut_velocity (cut_us_P, local_Pos, num_of_cuts);
+
+
+
+		cut_velocity(ul[z], us[z], array_pos[z], "time_test.out", num_of_cuts, cut_us_Pos, divider_pos);
+
+
+		if (divider_pos[0] != 0)
+
+		{
+
+			counter_pos++;
+
+			//std::cout << counter_pos << std::endl;
+
+
+
+		//cut_us_N = cut_velocity(ul[z], us[z], local_Neg, num_of_cuts);
+
+		//local_Pos.clear();
+
+
+
+		/*	for (int i = 0; i < cut_us_Pos.size(); i++)
+			{
+
+				vel_matrix_pos.push_back(cut_us_Pos.at(i));
+
+
+			}
+			*/
+
+
+			for (int i = 0; i < ((2 * num_of_cuts) - 1); i++)
+			{
+
+				average_vel_pos[i] = cut_us_Pos[i] / divider_pos[i];
+
+			}
+
+
+			for (int i = 0; i < ((2 * num_of_cuts) - 1); i++)
+			{
+
+				average_vel_pos_ave[i] += average_vel_pos[i];
+
+			}
+
+		}
+
+
+
+	}
+
+	// TODO: fix code below as for the positive case
+
+
+	//int starting_size_Neg = 0;
+
+	//std::vector <double> vel_matrix_neg;
 
 
 
@@ -360,57 +444,102 @@ int main()
 
 	double average_vel_neg_ave[(2 * num_of_cuts) - 1] = { 0 };
 
-	double cut_us_Neg[(2 * num_of_cuts) - 1] = { 0 };
-
-	int divider_neg[(2 * num_of_cuts) - 1] = { 0 };
-
-	
-
 	int counter_neg = 0;
 
-		cut_velocity(ul[p], us[p], array_pos[p], "time.out", num_of_cuts, cut_us_Pos, divider_pos);
 
-		for (int i = 0; i < ((2 * num_of_cuts) - 1); i++)
+	//int max_neg = *std::max_element(size_array_neg.begin(), size_array_neg.end());
+
+	for (int z = 0; z < DIMZ; z++)
+	{
+
+
+		double cut_us_Neg[(2 * num_of_cuts) - 1] = { 0 };
+
+		int divider_neg[(2 * num_of_cuts) - 1] = { 0 };
+
+
+		//std::vector<double> cut_us_N; // cut small velocity and time for positive to negative
+
+		//std::vector<double> cut_us_Neg;
+
+
+/*
+		std::vector <int> local_Neg;
+
+		local_Neg.resize(size_array_neg[z]);
+
+		for (int i = 0; i < size_array_neg[z]; i++)
 		{
 
-			average_vel_pos[i] = cut_us_Pos[i] / divider_pos[i];
+			local_Neg[i] = array_neg[(starting_size_Neg + i)];
+
+		}
+
+*/
+//starting_size_Neg = starting_size_Neg + size_array_neg[z];
+
+
+//cut_us_N = cut_velocity(ul[z], us[z], local_Neg, num_of_cuts);
+
+
+
+		cut_velocity(ul[z], us[z], array_neg[z], "time_test.out", num_of_cuts, cut_us_Neg, divider_neg);
+
+		//std::cout << ul[z].size() << std::endl;
+
+		//cut_us_Neg = average_cut_velocity(cut_us_N, local_Neg, num_of_cuts);
+
+		//local_Neg.clear();
+
+
+
+		std::cout << counter_neg;
+		if (divider_neg[0] != 0)
+
+		{
+
+			counter_neg++;
+			std::cout << counter_neg << std::endl;
+
+
+
+
+			for (int i = 0; i < ((2 * num_of_cuts) - 1); i++)
+			{
+				average_vel_neg[i] = cut_us_Neg[i] / divider_neg[i];
+
+				//std::cout << cut_us_Neg[i] << std::endl;
+			}
+
+
+
+			for (int i = 0; i < ((2 * num_of_cuts) - 1); i++)
+			{
+
+				average_vel_neg_ave[i] += average_vel_neg[i];
+
+			}
 
 		}
 
 
-		std::fstream file_P;
-		file_P.open("Velocity_pos_neg.out", std::ios::out | std::ios::binary);
-		for (int i = 0; i < ((2 * num_of_cuts) - 1); i++)
-		{
-			file_P.write((char*)(&average_vel_pos[i]), sizeof(double));
-
-		}
+	}
 
 
-		//double average_vel_neg[(2 * num_of_cuts) - 1] = { 0 };
+	for (int i = 0; i < ((2 * num_of_cuts) - 1); i++)
+	{
 
-		//double average_vel_pos_ave[(2 * num_of_cuts) - 1] = { 0 };
-
-		//double cut_us_Neg[(2 * num_of_cuts) - 1] = { 0 };
-
-		//int divider_neg[(2 * num_of_cuts) - 1] = { 0 };
-
-		cut_velocity(ul[p], us[p], array_neg[p], "time.out", num_of_cuts, cut_us_Neg, divider_neg);
-
-		for (int i = 0; i < ((2 * num_of_cuts) - 1); i++)
-		{
-
-			average_vel_neg[i] = cut_us_Neg[i] / divider_neg[i];
-
-		}
+		average_vel_neg_ave[i] = average_vel_neg_ave[i] / counter_neg;
 
 
-		std::fstream file_N;
-		file_N.open("Velocity_neg_pos.out", std::ios::out | std::ios::binary);
-		for (int i = 0; i < ((2 * num_of_cuts) - 1); i++)
-		{
-			file_N.write((char*)(&average_vel_neg[i]), sizeof(double));
-		}
+	}
+
+	for (int i = 0; i < ((2 * num_of_cuts) - 1); i++)
+	{
+
+		average_vel_pos_ave[i] = average_vel_pos_ave[i] / counter_pos;
+
+	}
 
 
 
@@ -442,7 +571,26 @@ int main()
 		file_PT.write((char*)(&time[i]), sizeof(double));
 	}
 
-	return 0;
 
+
+
+	std::fstream file_P;
+	file_P.open("Velocity_pos_neg.out", std::ios::out | std::ios::binary);
+	for (int i = 0; i < ((2 * num_of_cuts) - 1); i++)
+	{
+		file_P.write((char*)(&average_vel_pos_ave[i]), sizeof(double));
+	}
+
+	std::cout << "z";
+
+	std::fstream file_N;
+	file_N.open("Velocity_neg_pos.out", std::ios::out | std::ios::binary);
+	for (int i = 0; i < ((2 * num_of_cuts) - 1); i++)
+	{
+		file_N.write((char*)(&average_vel_neg_ave[i]), sizeof(double));
+	}
+
+
+	return 0;
 
 }

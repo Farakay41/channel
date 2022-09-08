@@ -1,7 +1,8 @@
 {
     
-    "threshold" : 0.1,
+    "threshold" : 0.00882,
     "method": 1,
-    "timestep": 0.000127175055596395
+    "timestep": 0.0007, //0.00882,
+    "z-position": 10
   
 }
